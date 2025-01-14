@@ -1,0 +1,91 @@
+from grid import Grid
+from blocks import *
+import random
+
+
+# Game logic control
+class Game:
+    def __init__(self):
+        self.grid = Grid()
+        self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+        self.current_block = self.get_random_block()
+        self.next_block = self.get_random_block()
+        self.game_over = False
+        self.score = 0
+
+    def update_score(self, lines_cleared, move_down_points):
+        if lines_cleared == 1:
+            self.score += 100
+        elif lines_cleared == 2:
+            self.score += 300
+        elif lines_cleared == 3:
+            self.score += 500
+        self.score += move_down_points
+
+    def get_random_block(self):
+        if len(self.blocks) == 0:
+            self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+        block = random.choice(self.blocks)
+        self.blocks.remove(block)  # We delete the selected block so that it does not immediately appear again
+        return block
+
+# 3 block moving functions
+    def move_left(self):
+        self.current_block.move(0, -1)
+        if self.block_inside() == False or self.block_fits() == False:  # If a block goes beyond the playing field, we return it back
+            self.current_block.move(0, 1)
+
+    def move_right(self):
+        self.current_block.move(0, 1)
+        if self.block_inside() == False or self.block_fits() == False:
+            self.current_block.move(0, -1)
+
+    def move_down(self):
+        self.current_block.move(1, 0)
+        if self.block_inside() == False or self.block_fits() == False:
+            self.current_block.move(-1, 0)
+            self.lock_block()
+
+     # Fixes the position of the block when it collides with the bottom of the screen
+    def lock_block(self):
+        tiles = self.current_block.get_cell_positions()
+        for position in tiles:
+            self.grid.grid[position.row][position.column] = self.current_block.id
+        self.current_block = self.next_block
+        self.next_block = self.get_random_block()
+        rows_cleared = self.grid.clear_full_rows()
+        self.update_score(rows_cleared, 0)
+        if self.block_fits() is False:
+            self.game_over = True  # Game over
+
+    # Reset the game
+    def reset(self):
+        self.grid.reset()
+        self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+        self.current_block = self.get_random_block()
+        self.next_block = self.get_random_block()
+        self.score = 0
+
+    # Checks whether the block is located above an empty cell or an occupied one
+    def block_fits(self):
+        tiles = self.current_block.get_cell_positions()
+        for tile in tiles:
+            if self.grid.is_empty(tile.row, tile.column) is False:
+                return False
+        return True
+
+    def rotate(self):
+        self.current_block.rotate()
+        if self.block_inside() == False or self.block_fits() == False:  # If, when turning, the block goes beyond the playing field, then we cancel the rotation
+            self.current_block.undo_rotation()
+
+    def block_inside(self):
+        tiles = self.current_block.get_cell_positions()
+        for tile in tiles:
+            if self.grid.is_inside(tile.row, tile.column) is False:
+                return False
+        return True
+
+    def draw(self, screen):
+        self.grid.draw(screen)
+        self.current_block.draw(screen)
