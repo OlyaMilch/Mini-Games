@@ -12,7 +12,7 @@ SCREEN_HEIGHT = 700
 OFFSET = 50
 
 font = pg.font.Font(None, 40)
-level_surface = font.render('LEVEL 01', False, '#F2F22F')
+level_surface = font.render('IN GAME', False, '#F2F22F')
 game_over_surface = font.render('GAME OVER', False, '#F2F22F')
 
 screen = pg.display.set_mode((SCREEN_WIDTH + OFFSET, SCREEN_HEIGHT + 2 * OFFSET))  # Creating a game window

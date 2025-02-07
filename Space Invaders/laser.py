@@ -9,7 +9,7 @@ class Laser(pg.sprite.Sprite):
     def __init__(self, position, speed, screen_height):
         super().__init__()
         self.image = pg.Surface((4, 15))  # Instead of a sprite we use a drawn laser (little rectangle)
-        self.image.fill('#E2F019')
+        self.image.fill('#f06419')
         self.rect = self.image.get_rect(
             center=position)  # Determines where on the screen the laser will appear when it is first created
         self.speed = speed
